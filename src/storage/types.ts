@@ -16,8 +16,18 @@ export interface GraphQLFormattedQuery {
 
 export interface GraphQLInputData {
   query: string
-  connectedData: any
+  input?: any
+  patch?: any
   name: string
+}
+
+export interface GraphQLQueryData {
+  query: string
+  input?: any
+  variables: {
+    input?: any
+    patch?: any
+  }
 }
 
 export interface StorageEngineConnectionConfig {

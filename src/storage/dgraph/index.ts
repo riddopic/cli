@@ -1,6 +1,11 @@
 import { ExecutionResult } from 'graphql'
 
-import { GraphQLInputData, StorageEngine, StorageEngineConfig } from '../types'
+import {
+  GraphQLInputData,
+  GraphQLQueryData,
+  StorageEngine,
+  StorageEngineConfig,
+} from '../types'
 import DGraphClientWrapper from './base'
 import { processGQLExecutionResult, UPDATE_SCHEMA_QUERY } from './utils'
 
@@ -114,11 +119,12 @@ export default class DgraphEngine
    * Add Service Mutation to axiosPromises Array
    */
   push(data: GraphQLInputData): void {
-    const { query, connectedData } = data
-    const queryData = {
+    const { query, input, patch } = data
+    const queryData: GraphQLQueryData = {
       query,
       variables: {
-        input: connectedData,
+        input,
+        patch,
       },
     }
     this.axiosPromises.push(() =>
@@ -132,7 +138,7 @@ export default class DgraphEngine
             reqData: queryData,
             resData,
             errors,
-            service: data.name
+            service: data.name,
           })
         })
         .catch(error => Promise.reject(error))

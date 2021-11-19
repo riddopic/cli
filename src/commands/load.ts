@@ -4,7 +4,10 @@ import path from 'path'
 import { isEmpty } from 'lodash'
 
 import Command from './base'
-import { fileUtils, processConnectionsBetweenEntities } from '../utils'
+import {
+  fileUtils,
+  loadAllData,
+} from '../utils'
 
 export default class Load extends Command {
   static description = 'Load a specific version of your CloudGraph data'
@@ -79,7 +82,7 @@ export default class Load extends Command {
       this.logger.info(
         `Beginning ${chalk.italic.green('LOAD')} for ${provider}`
       )
-      const { client, schemasMap } = await this.getProviderClient(provider)
+      const { client, schemasMap: schemaMap } = await this.getProviderClient(provider)
       if (!client) {
         continue // eslint-disable-line no-continue
       }
@@ -192,19 +195,13 @@ export default class Load extends Command {
        * Build connectedEntity by pushing the matched entity into the field corresponding to that entity (alb.ec2Instance => [ec2Instance])
        * Push connected entity into dgraph
        */
-      this.logger.startSpinner(
-        `Making service connections for ${chalk.italic.green(provider)}`
-      )
-      processConnectionsBetweenEntities(
+      loadAllData({
         provider,
         providerData,
         storageEngine,
         storageRunning,
-        schemasMap
-      )
-      this.logger.successSpinner(
-        `Connections made successfully for ${chalk.italic.green(provider)}`
-      )
+        schemaMap
+      }, this.logger)
     }
 
     // Execute services mutations promises
